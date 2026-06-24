@@ -26,6 +26,12 @@ def main():
         net_arch=dict(pi=[128], vf=[128])
     )
     
+    import torch
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"Using device: {device}")
+    if device == "cuda":
+        print(f"GPU Name: {torch.cuda.get_device_name(0)}")
+        
     print("Setting up MaskablePPO model...")
     model = MaskablePPO(
         MaskableActorCriticPolicy,
@@ -40,11 +46,12 @@ def main():
         ent_coef=0.01,
         verbose=1,
         policy_kwargs=policy_kwargs,
-        tensorboard_log=None
+        tensorboard_log=None,
+        device=device
     )
     
     total_timesteps = 200000
-    print(f"Starting training for {total_timesteps} timesteps on CPU...")
+    print(f"Starting training for {total_timesteps} timesteps on {device.upper()}...")
     
     # Callback to save checkpoints
     checkpoint_callback = CheckpointCallback(

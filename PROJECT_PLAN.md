@@ -527,4 +527,29 @@ random.randint(1, 9)
 * 환경 구현 및 행동 탐색 로직을 우선 완성
 
 ---
-이 문서는 v1.0 완료 버전으로 업데이트되었습니다. 가로 17, 세로 10 보드 조건과 2D Prefix Sum 기반 고속 행동 탐색, 그리고 행동 마스킹 기반 MaskablePPO 모델 구축이 완료되어 베이스라인 대비 성능 우위를 성공적으로 검증했습니다.
+
+# 11. 모델 개선 이력
+
+## 1차 개선 (2026-06-25) - GPU 가속 도입 및 대규모 학습 환경 구축 [진행 예정]
+
+### 목적
+* CPU 학습 속도 한계 극복 및 대규모 정책 학습 활성화.
+
+### 하드웨어 진단
+* **CPU**: Intel64 Family (32 논리 코어) 감지.
+* **GPU**: **NVIDIA GeForce RTX 4070 Laptop GPU (VRAM 8GB)** 감지.
+* **상태**: 현재 가상환경 내 PyTorch가 CPU 전용 빌드로 설치되어 있어 CUDA를 미지원하는 상태 (`CUDA available: False`).
+
+### 작업 계획
+1. **PyTorch CUDA 라이브러리 재설치**:
+   - 가상환경 내에 CUDA 12.1 지원 PyTorch 패키지를 공식 저장소를 통해 강제 재설치 수행.
+   - 명령어: `.venv\Scripts\pip install torch --extra-index-url https://download.pytorch.org/whl/cu121 --force-reinstall`
+2. **동작 검증**:
+   - PyTorch CUDA 인식 테스트 스크립트 실행하여 `CUDA available: True` 검증.
+   - `scripts/train_ppo.py` 시작 로그에 현재 디바이스 정보를 출력하도록 수정.
+3. **가속 및 튜닝**:
+   - 5,000 스텝 단기 테스트를 통해 GPU가 올바르게 작동하는지 확인하고 초당 프레임수(FPS) 증가율 비교 측정.
+   - 배치 크기 확장 등 하이퍼파라미터 튜닝을 통해 1,000,000 스텝 대규모 학습 진행을 위한 하드웨어 기반 완성.
+
+---
+이 문서는 v1.0 완료 버전으로 업데이트되었습니다. 가로 17, 세로 10 보드 조건과 2D Prefix Sum 기반 고속 행동 탐색, 그리고 행동 마스킹 기반 MaskablePPO 모델 구축이 완료되어 베이스라인 대비 성능 우위를 성공적으로 검증했습니다. 추가적으로 v1.1 GPU 가속 개선 계획을 모델 개선 이력에 추가했습니다.

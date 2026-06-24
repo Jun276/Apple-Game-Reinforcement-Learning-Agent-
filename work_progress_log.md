@@ -192,3 +192,36 @@ This log is used to verify goals, processes, and results of each development ste
     3. Tuning reward design (e.g., introducing a small penalty for leaving isolated apples, or a large bonus for a fully cleared board).
 
 ---
+
+## 📅 Model Improvement Phase 1: GPU Acceleration
+
+### 🎯 1. Before Step: Plan
+* **Goal**: Enable GPU (CUDA) acceleration in the PyTorch virtual environment.
+  - Reinstall PyTorch with CUDA 12.1 binary wheels.
+  - Verify PyTorch detects the NVIDIA GeForce RTX 4070 Laptop GPU.
+  - Test training using GPU and measure speed (FPS).
+* **Process**:
+  - Run `.venv\Scripts\pip install torch --extra-index-url https://download.pytorch.org/whl/cu121 --force-reinstall`.
+  - Verify via Python script `import torch; print(torch.cuda.is_available())`.
+  - Update `scripts/train_ppo.py` to log the training device.
+  - Run a short training run on GPU to confirm compatibility.
+* **Expected Outcome**:
+  - `CUDA available: True` and GPU name printed.
+  - PPO training runs successfully on CUDA.
+  - Training speed (FPS) is measured on GPU.
+
+### 🔍 2. After Step: Comparison & Review
+* **Actual Outcome**:
+  - Reinstalled PyTorch with CUDA 12.6 support via the `cu126` index, resolving all dependency conflicts with `stable-baselines3 2.9.0`.
+  - Verified that `torch.cuda.is_available()` correctly recognizes the **NVIDIA GeForce RTX 4070 Laptop GPU**.
+  - Updated `scripts/train_ppo.py` to auto-detect and output CUDA status and pass `device="cuda"` to MaskablePPO.
+  - Executed a 5,000 step test run on GPU. Training completed successfully with no errors.
+  - Measured training speed: **102-118 FPS** on GPU, compared to **59 FPS** on CPU (approx. **$1.7\times$ to $2\times$ speedup**).
+* **Comparison & Analysis**:
+  - The CUDA runtime library is now fully integrated with PyTorch.
+  - The frame rate has doubled, reducing the training time of 200,000 steps from ~1 hour to ~30 minutes, allowing much faster iteration.
+* **Optimization/Feedback**:
+  - PyTorch CUDA acceleration is verified and successfully enabled.
+  - Restored `total_timesteps = 200000` in the script for standard training runs.
+
+---
